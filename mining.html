@@ -28,6 +28,15 @@
             }
         }
 
+        function notifyDoubleEvent() {
+            if (Notification.permission === 'granted') {
+                new Notification('Double Powder Event is LIVE!', {
+                    body: 'Get in quick before it ends!',
+                    icon: 'https://example.com/icon.png', // Optional: Replace with an actual icon URL
+                });
+            }
+        }
+
         function displayData(data) {
             const contentDiv = document.getElementById('content');
             contentDiv.innerHTML = '';
@@ -51,7 +60,7 @@
                         const endTime = event.ends_at;
                         const startTime = endTime - 600000; // Assuming events last ~10 minutes
                         
-                        eventDiv.innerHTML = `
+                        eventDiv.innerHTML = ` 
                             <strong>EVENT:</strong> ${event.event.toUpperCase()} <br>
                             <strong>STARTED:</strong> <span class="stopwatch" data-start="${startTime}"></span> (<span class="start-time" data-time="${startTime}"></span>) <br>
                             <strong>LOBBY COUNT:</strong> ${event.lobby_count} <br>
@@ -59,6 +68,11 @@
                             <hr>
                         `;
                         contentDiv.appendChild(eventDiv);
+                        
+                        // If it's a double event, notify the user
+                        if (event.is_double) {
+                            notifyDoubleEvent();
+                        }
                     });
                 }
             }
@@ -86,6 +100,19 @@
                 });
             }, 1000);
         }
+
+        function requestNotificationPermission() {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log('Notification permission granted');
+                    }
+                });
+            }
+        }
+
+        // Request permission when the page loads
+        requestNotificationPermission();
 
         setInterval(fetchData, 5000);
         window.onload = fetchData;
